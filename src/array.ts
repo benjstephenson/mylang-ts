@@ -1,15 +1,15 @@
-export type NonEmptyArray<T> = {
-  0: T;
-} & T[];
+export type NonEmptyArray<T> = [T, ...T[]]
+
+export const isNonEmpty = <T>(xs: T[]): xs is NonEmptyArray<T> => xs.length > 0
 
 export const head = <T>(xs: NonEmptyArray<T>): T => xs[0];
 
 export const tail = <T>(xs: T[]): T[] => {
   const [_, ...tail] = xs;
-  return tail;
+  return tail || [];
 };
 
-export const push = <T>(x: T, xs: T[]): NonEmptyArray<T> => {
+export const push = <T, R extends T>(x: R, xs: T[]): NonEmptyArray<T> => {
   xs.push(x);
   return xs as NonEmptyArray<T>;
 };

@@ -1,5 +1,5 @@
-import { tokenise } from "./lexer.ts";
-import * as Parser from "./parser.ts";
+import { tokenise } from "./lex/lexer.ts";
+import * as Parser from "./parse/parser.ts";
 // import { evaluate } from "./runtime/interpreter.ts";
 
 async function repl() {
@@ -12,7 +12,7 @@ async function repl() {
     }
 
     const program = Parser.produceAST(input); //Parser.produceAST(input);
-    console.log(program);
+    console.log(JSON.stringify(program, null, 2));
     //const result = evaluate(program);
     //console.log(result);
   }

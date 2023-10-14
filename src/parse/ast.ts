@@ -1,50 +1,49 @@
-export type NodeType =
-  | "Program"
-  | "NumericLiteral"
-  | "Identifier"
-  | "InfixExpr";
+import { InfixOperator } from "../Symbols.ts";
 
 export type Program = {
-  kind: "Program";
+  _tag: "Program";
   body: Expr[];
 };
+export const Program = (body: Expr[] = []): Program => ({ _tag: "Program", body })
 
 export type InfixExpr = {
-  kind: "InfixExpr";
+  _tag: "InfixExpr";
   left: Expr;
   right: Expr;
-  operator: "+" | "-" | "*" | "/" | "%" | "^";
+  operator: InfixOperator
 };
 
 export const InfixExpr = (
   left: Expr,
   right: Expr,
-  operator: string,
+  operator: InfixOperator,
 ): InfixExpr => ({
-  kind: "InfixExpr",
+  _tag: "InfixExpr",
   left,
   right,
   operator,
 });
 
 export type Identifier = {
-  kind: "Identifier";
+  _tag: "Identifier";
   symbol: string;
 };
 
 export const Identifier = (symbol: string): Identifier => ({
-  kind: "Identifier",
+  _tag: "Identifier",
   symbol,
 });
 
 export type NumericLiteral = {
-  kind: "NumericLiteral";
+  _tag: "NumericLiteral";
   value: number;
 };
 
 export const NumericLiteral = (value: number): NumericLiteral => ({
-  kind: "NumericLiteral",
+  _tag: "NumericLiteral",
   value,
 });
 
 export type Expr = Program | InfixExpr | Identifier | NumericLiteral;
+export type NodeType = Expr["_tag"]
+

@@ -40,6 +40,33 @@ function parsePrimaryExpr(tokens: Token[]): [Token[], Expr] {
   }
 }
 
+function buildExprParser(infixOperators: string[], parser: (tokens: Token[]) => [Token[], Expr]) {
+  const _parse = (
+    tokens: Token[],
+    expr: Expr,
+  ): [Token[], Expr] => {
+    const [head, ...tail] = tokens;
+    if (!infixOperators.includes(head.value)) return [tokens, expr];
+
+    const operator = head.value;
+    const [remainingTokens, right] = parser(tail);
+
+    return _parse(
+      remainingTokens,
+      InfixExpr(expr, right, operator),
+    );
+  };
+
+  return (tokens: Token[]): [Token[], Expr] => {
+    const [remainingTokens, left] = parser(tokens);
+    return _parse(remainingTokens, left)
+  }
+}
+
+const parseExponentialExpr22 = buildExprParser(["^"], parsePrimaryExpr)
+const parseMultiplicativeExpr22 = buildExprParser(["/", "*", "%"], parseExponentialExpr22)
+const parseAdditiveExpr22 = buildExprParser(["+", "-"], parseMultiplicativeExpr22)
+
 function parseMultiplicativeExpr(tokens: Token[]): [Token[], Expr] {
   const [remainingTokens, left] = parsePrimaryExpr(tokens);
 
@@ -65,21 +92,27 @@ function parseMultiplicativeExpr(tokens: Token[]): [Token[], Expr] {
 function parseAdditiveExpr(tokens: Token[]): [Token[], Expr] {
   const [remainingTokens, left] = parseMultiplicativeExpr(tokens);
 
-  const _parseAdditive = (tokens: Token[], expr: Expr): [Token[], Expr] => {
+  const _parseAdditive = (
+    tokens: Token[],
+    expr: Expr
+  ): [Token[], Expr] => {
     const [head, ...tail] = tokens;
     if (!["+", "-"].includes(head.value)) return [tokens, expr];
 
     const operator = head.value;
     const [remainingTokens, right] = parseMultiplicativeExpr(tail);
 
-    return _parseAdditive(remainingTokens, InfixExpr(expr, right, operator));
+    return _parseAdditive(
+      remainingTokens,
+      InfixExpr(expr, right, operator)
+    );
   };
 
   return _parseAdditive(remainingTokens, left);
 }
 
 function parseExpr(tokens: Token[]): [Token[], Expr] {
-  return parseAdditiveExpr(tokens);
+  return parseAdditiveExpr22(tokens);
 }
 
 export function produceAST(raw: string): Program {

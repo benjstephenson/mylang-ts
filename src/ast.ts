@@ -13,7 +13,7 @@ export type InfixExpr = {
   kind: "InfixExpr";
   left: Expr;
   right: Expr;
-  operator: string;
+  operator: "+" | "-" | "*" | "/" | "%" | "^";
 };
 
 export const InfixExpr = (

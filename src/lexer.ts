@@ -21,9 +21,10 @@ const PlusSym = "+";
 const MinusSym = "-";
 const AsteriskSym = "*";
 const ModulusSym = "%";
+const HatSym = "^";
 const BackSlash = "\\";
 const Slash = "/";
-const InfixOperators = [PlusSym, MinusSym, AsteriskSym, ModulusSym, Slash];
+const InfixOperators = [PlusSym, MinusSym, AsteriskSym, ModulusSym, Slash, HatSym];
 
 export type Token = {
   value: string;

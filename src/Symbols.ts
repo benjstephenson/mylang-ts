@@ -17,4 +17,3 @@ const InfixOperators = [Symbols.Plus, Symbols.Minus, Symbols.Asterisk, Symbols.M
 export type InfixOperator = ElementOf<typeof InfixOperators>
 export const isInfixOperator = (c: string): c is InfixOperator => InfixOperators.includes(c as any)
 
-

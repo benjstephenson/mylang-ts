@@ -12,16 +12,7 @@ function popExpected(tokenType: TokenType, tokens: Token[]): Token[] {
   return tail
 }
 
-function _produceAST(tokens: Token[], exprs: Expr[]): Expr[] {
-  if (!A.isNonEmpty(tokens)) return exprs
 
-  const t = A.head(tokens)
-
-  if (t._tag === "Eof") return exprs
-
-  const [remainingTokens, es] = parseExpr(tokens)
-  return _produceAST(remainingTokens, A.push(es, exprs))
-}
 
 function parsePrimaryExpr(tokens: Token[]): [Token[], Expr] {
   const [token, ...tail] = tokens
@@ -44,15 +35,13 @@ function parsePrimaryExpr(tokens: Token[]): [Token[], Expr] {
   }
 }
 
-function buildExprParser(infixOperators: string[], parser: (tokens: Token[]) => [Token[], Expr]) {
-  const _parse = (
-    tokens: Token[],
-    expr: Expr,
-  ): [Token[], Expr] => {
+function buildExprParser(infixOperators: string[], parser: (tokens: Token[]) => [Token[], Expr]): (tokens: Token[]) => [Token[], Expr] {
+
+  const _parse = (tokens: Token[], expr: Expr,): [Token[], Expr] => {
 
     const [head, ...tail] = tokens
 
-    if (!isInfixOperatorToken(head) || infixOperators.includes(head.value)) return [tokens, expr]
+    if (!isInfixOperatorToken(head) || !infixOperators.includes(head.value)) return [tokens, expr]
 
     const operator = head.value
     const [remainingTokens, right] = parser(tail)
@@ -79,6 +68,18 @@ function parseExpr(tokens: Token[]): [Token[], Expr] {
 }
 
 export function produceAST(raw: string): Program {
+
+  const _produceAST = (tokens: Token[], exprs: Expr[]): Expr[] => {
+    if (!A.isNonEmpty(tokens)) return exprs
+
+    const t = A.head(tokens)
+
+    if (t._tag === "Eof") return exprs
+
+    const [remainingTokens, es] = parseExpr(tokens)
+    return _produceAST(remainingTokens, A.push(es, exprs))
+  }
+
   const tokens = tokenise(raw)
 
   const program = Program()

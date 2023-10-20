@@ -6,6 +6,13 @@ export type Program = {
 }
 export const Program = (body: Expr[] = []): Program => ({ _tag: "Program", body })
 
+export type LetDeclaration = {
+  _tag: "LetDeclaration",
+  identifier: string,
+  value: Expr
+}
+export const LetDeclaration = (identifier: string, value: Expr): LetDeclaration => ({ _tag: "LetDeclaration", identifier, value })
+
 export type InfixExpr = {
   _tag: "InfixExpr"
   left: Expr
@@ -44,6 +51,23 @@ export const NumericLiteral = (value: number): NumericLiteral => ({
   value,
 })
 
-export type Expr = Program | InfixExpr | Identifier | NumericLiteral
+export type Property = {
+  _tag: "Property",
+  key: string,
+  value?: Expr
+}
+
+export const Property = (key: string, val: Expr | undefined = undefined): Property =>
+  val === undefined
+    ? ({ _tag: "Property", key })
+    : ({ _tag: "Property", key, value: val })
+
+export type ObjectLiteral = {
+  _tag: "ObjectLiteral",
+  properties: Property[]
+}
+export const ObjectLiteral = (properties: Property[]): ObjectLiteral => ({ _tag: "ObjectLiteral", properties })
+
+export type Expr = Program | LetDeclaration | InfixExpr | Identifier | NumericLiteral | Property | ObjectLiteral
 export type NodeType = Expr["_tag"]
 

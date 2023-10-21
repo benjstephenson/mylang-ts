@@ -13,7 +13,7 @@ export const map = (f: (env: Environment) => [RuntimeVal, Environment]) => (last
 export const declare = (name: string, value: RuntimeVal) => (self: Environment): [RuntimeVal, Environment] => {
   if (self.variables.has(name)) { throw new Error(`Cannot redeclare variable ${name}`) }
 
-  return [value, { ...self, variables: self.variables.set(name, value) }]
+  return [value, { parent: self.parent, variables: self.variables.set(name, value) }]
 }
 
 export const resolve = (name: string) => (self: Environment): Environment => {

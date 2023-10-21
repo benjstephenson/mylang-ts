@@ -8,9 +8,8 @@ const [_, env] = pipe(
   Env.Environment(),
   Env.declare("x", NumericVal(100)),
   Env.map(Env.declare("True", True)),
-  Env.map(Env.declare("False", False))
+  Env.map(Env.declare("False", False)),
 )
-
 
 async function repl() {
   console.log("\nReplv0.0.1")
@@ -21,7 +20,7 @@ async function repl() {
       throw new Error("Terminated")
     }
 
-    const program = Parser.produceAST(input)
+    const program = Parser.produceAST([input])
     console.log(JSON.stringify(program, null, 2))
 
     const result = evaluate(program, env)
@@ -30,13 +29,14 @@ async function repl() {
 }
 
 async function run(filename: string) {
-  const input = await Deno.readTextFile(filename);
-  const program = Parser.produceAST(input);
-  console.log(JSON.stringify(program, null, 2));
+  const input = (await Deno.readTextFile(filename)).split("\\n")
+  const program = Parser.produceAST(input)
+  console.log(JSON.stringify(program, null, 2))
 
-  const result = evaluate(program, env);
-  console.log(JSON.stringify(result, null, 2));
+  const [result, e] = evaluate(program, env)
+  console.log(JSON.stringify(result, null, 2))
+  console.log(e)
 }
 
 // repl()
-run("./test.txt");
+run("./test.txt")

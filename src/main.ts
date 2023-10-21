@@ -1,8 +1,9 @@
-import { pipe } from "./functions.ts"
-import * as Parser from "./parse/parser.ts"
-import * as Env from "./runtime/environment.ts"
-import { evaluate } from "./runtime/interpreter.ts"
-import { False, NumericVal, True } from "./runtime/values.ts"
+import { pipe } from "./functions"
+import * as Parser from "./parse/parser"
+import * as Env from "./runtime/environment"
+import { evaluate } from "./runtime/interpreter"
+import { False, NumericVal, True } from "./runtime/values"
+import * as fs from "fs"
 
 const [_, env] = pipe(
   Env.Environment(),
@@ -29,7 +30,8 @@ async function repl() {
 }
 
 async function run(filename: string) {
-  const input = (await Deno.readTextFile(filename)).split("\\n")
+  // const input = (await Deno.readTextFile(filename)).split("\\n")
+  const input = fs.readFileSync(filename, "utf-8").split("\\n")
   const program = Parser.produceAST(input)
   console.log(JSON.stringify(program, null, 2))
 

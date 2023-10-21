@@ -1,7 +1,7 @@
-import { SymbolToToken, isKnownSymbol } from "../Symbols.ts"
-import { push, tail, isNonEmpty } from "../array.ts"
-import { keywordOrIdentifier } from "./ReservedKeywords.ts"
-import { EofToken, NumberToken, Token } from "./Tokens.ts"
+import { SymbolToToken, isKnownSymbol } from "../Symbols"
+import { push, tail, isNonEmpty } from "../array"
+import { keywordOrIdentifier } from "./ReservedKeywords"
+import { EofToken, NumberToken, Token } from "./Tokens"
 
 const isAlpha = (str: string): boolean =>
   str.toUpperCase() !== str.toLowerCase()

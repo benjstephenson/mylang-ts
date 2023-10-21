@@ -1,4 +1,4 @@
-import { RuntimeVal } from "./values.ts"
+import { RuntimeVal } from "./values"
 
 export type Environment = {
   parent: Environment | undefined

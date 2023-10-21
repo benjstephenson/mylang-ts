@@ -1,5 +1,5 @@
-import { InfixOperator } from "../Symbols.ts"
-import { Location } from "../types.ts"
+import { InfixOperator } from "../Symbols"
+import { Location } from "../types"
 
 export type Program = {
   _tag: "Program"

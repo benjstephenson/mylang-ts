@@ -1,5 +1,5 @@
-import { CloseBraceToken, CloseParenToken, ColonToken, EqualsToken, InfixOperatorToken, OpenBraceToken, OpenParenToken, SemiColonToken, Token } from "./lex/Tokens.ts";
-import { ElementOf, PropertyOf } from "./types.ts"
+import { CloseBraceToken, CloseParenToken, ColonToken, EqualsToken, InfixOperatorToken, OpenBraceToken, OpenParenToken, SemiColonToken, Token } from "./lex/Tokens";
+import { ElementOf, PropertyOf } from "./types"
 
 export const Symbols = {
   OpenParen: "(" as const,

@@ -1,4 +1,4 @@
-import { pipe, tuple } from './functions.ts'
+import { pipe, tuple } from './functions'
 
 export type State<U, T> = (state: U) => [U, T]
 

@@ -1,5 +1,5 @@
-import { InfixOperator } from "../Symbols.ts"
-import { Location } from "../types.ts"
+import { InfixOperator } from "../Symbols"
+import { Location } from "../types"
 
 const notUndefinedOrNull = (t: any): boolean => t !== undefined && t !== null
 const is = <T extends Token>(tag: T["_tag"]) => (t: any): t is T => notUndefinedOrNull(t) && t._tag === tag

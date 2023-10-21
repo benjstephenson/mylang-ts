@@ -1,9 +1,9 @@
-import { BooleanVal, isNumericVal, NumericVal, RuntimeVal } from "./values.ts"
-import * as A from "../array.ts"
-import * as AST from "../parse/ast.ts"
-import * as Symbols from "../Symbols.ts"
-import { ExhaustiveMatchError } from "../types.ts"
-import * as Env from "./environment.ts"
+import { BooleanVal, isNumericVal, NumericVal, RuntimeVal } from "./values"
+import * as A from "../array"
+import * as AST from "../parse/ast"
+import * as Symbols from "../Symbols"
+import { ExhaustiveMatchError } from "../types"
+import * as Env from "./environment"
 
 function evalNumericExpr(lhs: NumericVal, rhs: NumericVal, op: Symbols.InfixOperator): NumericVal {
 

@@ -1,4 +1,4 @@
-import * as A from "../array.ts"
+import * as A from "../array"
 import {
   Expr,
   Identifier,
@@ -8,8 +8,8 @@ import {
   ObjectLiteral,
   Program,
   Property,
-} from "./ast.ts"
-import { tokenise } from "../lex/lexer.ts"
+} from "./ast"
+import { tokenise } from "../lex/lexer"
 import {
   IdentifierToken,
   isCloseBraceToken,
@@ -22,8 +22,8 @@ import {
   isOpenBraceToken,
   Token,
   TokenType,
-} from "../lex/Tokens.ts"
-import { InfixOperator, Symbols } from "../Symbols.ts"
+} from "../lex/Tokens"
+import { InfixOperator, Symbols } from "../Symbols"
 
 function popExpected(tokenType: TokenType, tokens: Token[]): Token[] {
   const [head, ...tail] = tokens

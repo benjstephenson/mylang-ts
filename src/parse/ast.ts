@@ -6,7 +6,7 @@ export type Program = {
   body: Expr[],
   loc: Location
 }
-export const Program = (start: number, end: number, body: Expr[] = []): Program => ({ _tag: "Program", body, loc: { start, end } })
+export const Program = (start: number, end: number, body: Expr[] = []): Program => ({ _tag: "Program", body, loc: Location(start, end) })
 
 export type LetDeclaration = {
   _tag: "LetDeclaration",
@@ -33,10 +33,10 @@ export const InfixExpr = (
   left,
   right,
   operator,
-  loc: {
-    start: left.loc.start,
-    end: right.loc.end
-  }
+  loc: Location(
+    left.loc.start,
+    right.loc.end
+  )
 })
 
 export type Identifier = {
@@ -70,17 +70,17 @@ export type Property = {
   loc: Location
 }
 
-export const Property = (key: string, start: number, end: number, val: Expr | undefined = undefined): Property =>
+export const Property = (key: string, loc: Location, val: Expr | undefined = undefined): Property =>
   val === undefined
-    ? ({ _tag: "Property", key, loc: { start, end } })
-    : ({ _tag: "Property", key, value: val, loc: { start, end } })
+    ? ({ _tag: "Property", key, loc })
+    : ({ _tag: "Property", key, value: val, loc })
 
 export type ObjectLiteral = {
   _tag: "ObjectLiteral",
   properties: Property[],
   loc: Location
 }
-export const ObjectLiteral = (properties: Property[], start: number, end: number): ObjectLiteral => ({ _tag: "ObjectLiteral", properties, loc: { start, end } })
+export const ObjectLiteral = (properties: Property[], start: number, end: number): ObjectLiteral => ({ _tag: "ObjectLiteral", properties, loc: Location(start, end) })
 
 export type Expr = Program | LetDeclaration | InfixExpr | Identifier | NumericLiteral | Property | ObjectLiteral
 export type NodeType = Expr["_tag"]

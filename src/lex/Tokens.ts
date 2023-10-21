@@ -4,17 +4,17 @@ import { Location } from "../types"
 const notUndefinedOrNull = (t: any): boolean => t !== undefined && t !== null
 const is = <T extends Token>(tag: T["_tag"]) => (t: any): t is T => notUndefinedOrNull(t) && t._tag === tag
 
-const symbolLocation = (start: number): Location => ({ start, end: start })
+const symbolLocation = (start: number): Location => Location(start, start)
 
 export type NumberToken = { _tag: "Number", value: string, loc: Location }
 export const NumberToken = (value: string, loc: Location): NumberToken => ({ _tag: "Number", value, loc })
 
 export type IdentifierToken = { _tag: "Identifier", value: string, loc: Location }
-export const IdentifierToken = (value: string, start: number): IdentifierToken => ({ _tag: "Identifier", value, loc: { start, end: start + value.length - 1 } })
+export const IdentifierToken = (value: string, start: number): IdentifierToken => ({ _tag: "Identifier", value, loc: Location(start, start + value.length - 1) })
 export const isIdentifierToken = is<IdentifierToken>("Identifier")
 
 export type LetToken = { _tag: "Let", loc: Location }
-export const LetToken = (start: number): LetToken => ({ _tag: "Let", loc: { start, end: start + 2 } })
+export const LetToken = (start: number): LetToken => ({ _tag: "Let", loc: Location(start, start + 2) })
 export const isLetToken = is<LetToken>("Let")
 
 export type EqualsToken = { _tag: "Equals", loc: Location }

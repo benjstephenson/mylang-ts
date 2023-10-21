@@ -1,5 +1,6 @@
 import { SymbolToToken, isKnownSymbol } from "../Symbols"
-import { push, tail, isNonEmpty } from "../array"
+import { isNonEmpty, push, tail } from "../array"
+import { Location } from "../types"
 import { keywordOrIdentifier } from "./ReservedKeywords"
 import { EofToken, NumberToken, Token } from "./Tokens"
 
@@ -51,7 +52,7 @@ export function tokenise(raw: string): Token[] {
         const [remainingChrs, numberStr] = tokeniseNumber(chrs)
         return _tokenise(
           remainingChrs,
-          push(NumberToken(numberStr, { start: pos, end: pos + numberStr.length - 1 }), tokens),
+          push(NumberToken(numberStr, Location(pos, pos + numberStr.length - 1)), tokens),
           pos + numberStr.length
         )
 
@@ -68,7 +69,7 @@ export function tokenise(raw: string): Token[] {
         return _tokenise(cs, tokens, ++pos)
 
       } else {
-        console.log(`Unrecognised character found [${c}]`)
+        console.log(`Unrecognised character found [${c}] at character index ${pos}`)
         return tokens
       }
     }

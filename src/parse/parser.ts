@@ -1,4 +1,19 @@
+import { InfixOperator, Symbols } from "../Symbols"
+import { Location, showLoc } from "../types"
 import * as A from "../array"
+import {
+  Token,
+  TokenType,
+  isCloseBraceToken,
+  isColonToken,
+  isEofToken,
+  isEqualsToken,
+  isIdentifierToken,
+  isInfixOperatorToken,
+  isLetToken,
+  isOpenBraceToken,
+} from "../lex/Tokens"
+import { tokenise } from "../lex/lexer"
 import {
   Expr,
   Identifier,
@@ -9,27 +24,12 @@ import {
   Program,
   Property,
 } from "./ast"
-import { tokenise } from "../lex/lexer"
-import {
-  IdentifierToken,
-  isCloseBraceToken,
-  isColonToken,
-  isEofToken,
-  isEqualsToken,
-  isIdentifierToken,
-  isInfixOperatorToken,
-  isLetToken,
-  isOpenBraceToken,
-  Token,
-  TokenType,
-} from "../lex/Tokens"
-import { InfixOperator, Symbols } from "../Symbols"
 
 function popExpected(tokenType: TokenType, tokens: Token[]): Token[] {
   const [head, ...tail] = tokens
 
-  if (head && head._tag !== tokenType) {
-    throw new Error(`Expected ${tokenType} but found ${head._tag}`)
+  if (head && head._tag !== tokenType && !isEofToken(head)) {
+    throw new Error(`Expected ${tokenType} at pos ${head.loc.start} but found ${head._tag}`)
   }
   return tail
 }
@@ -37,7 +37,7 @@ function popExpected(tokenType: TokenType, tokens: Token[]): Token[] {
 function parsePrimaryExpr(tokens: Token[]): [Token[], Expr] {
   const [token, ...tail] = tokens
 
-  if (token === undefined) throw new Error("Unexpected end of token list")
+  if (token === undefined || isEofToken(token)) throw new Error("Unexpected end of token list")
 
   switch (token._tag) {
     case "Identifier":
@@ -52,7 +52,7 @@ function parsePrimaryExpr(tokens: Token[]): [Token[], Expr] {
     }
 
     default:
-      throw new Error(`Unexpected token [${token._tag}]`)
+      throw new Error(`Unexpected token [${token._tag}] at loc ${showLoc(token.loc)}`)
   }
 }
 
@@ -83,11 +83,13 @@ function buildExprParser(
 }
 
 const parseExponentialExpr = buildExprParser([Symbols.Caret], parsePrimaryExpr)
+
 const parseMultiplicativeExpr = buildExprParser([
   Symbols.Slash,
   Symbols.Asterisk,
   Symbols.Percent,
 ], parseExponentialExpr)
+
 const parseAdditiveExpr = buildExprParser(
   [Symbols.Plus, Symbols.Minus],
   parseMultiplicativeExpr,
@@ -105,7 +107,7 @@ function parseObjectExpr(tokens: Token[]): [Token[], Expr] {
       return [[t!, ...tail], props, endLoc]
     }
 
-    if (!t) {
+    if (!t || isEofToken(t)) {
       throw new Error(`Uneven object literal, ${isIdentifierToken(head)
         ? `${head.value} must have a value`
         : `no named value to assign`
@@ -116,7 +118,7 @@ function parseObjectExpr(tokens: Token[]): [Token[], Expr] {
       const [remainingTokens, expr] = parseExpr([t, ...tail])
       return _parseObjectExpr(
         remainingTokens,
-        A.push(Property(head.value, head.loc.start, expr.loc.end, expr), props),
+        A.push(Property(head.value, Location(head.loc.start, expr.loc.end), expr), props),
         expr.loc.end
       )
     }
@@ -125,17 +127,17 @@ function parseObjectExpr(tokens: Token[]): [Token[], Expr] {
       if (isIdentifierToken(t)) {
         return _parseObjectExpr(
           tail,
-          A.push(Property(t.value, head.loc.start, t.loc.end), props),
+          A.push(Property(t.value, Location(head.loc.start, t.loc.end)), props),
           t.loc.end
         )
       }
 
       throw new Error(
-        `Cannot assign a ${t._tag} expression to a naked identifier in object literal`,
+        `Cannot assign a ${t._tag} expression to a naked identifier in object literal at pos ${t.loc.start}`,
       )
     }
 
-    throw new Error(`Invalid identifier ${head._tag} in object literal`)
+    throw new Error(`Invalid identifier ${head._tag} in object literal at los ${showLoc(head.loc)}`)
   }
 
   const [remainingTokens, properties, end] = _parseObjectExpr(tail, [], 0)
@@ -146,15 +148,16 @@ function parseLetDeclaration(tokens: Token[], start: number): [Token[], Expr] {
   const [head, eq, ...tail] = tokens
 
   if (!isIdentifierToken(head)) return parseExpr(tokens)
-  if (!isEqualsToken(eq)) throw new Error("oops")
+  if (!isEqualsToken(eq) && !isEofToken(eq))
+    throw new Error(`Expected Equals symbol ${eq !== undefined ? `at pos ${showLoc(eq.loc)} ` : `after ${head.loc.end}`}, but found ${eq?._tag}`)
 
   const [remainingTokens, value] = parseExpr(tail)
-  return [remainingTokens, LetDeclaration(head.value, value, { start, end: value.loc.end })]
+  return [remainingTokens, LetDeclaration(head.value, value, Location(start, value.loc.end))]
 }
 
 function parseExpr(tokens: Token[]): [Token[], Expr] {
-  return parseAdditiveExpr(tokens)
-  // return parseObjectExpr(tokens)
+  // return parseAdditiveExpr(tokens)
+  return parseObjectExpr(tokens)
 }
 
 function parseStatement(tokens: A.NonEmptyArray<Token>): [Token[], Expr] {
@@ -171,7 +174,7 @@ export function produceAST(raw: string[]): Program {
 
     const t = A.head(tokens)
 
-    if (t._tag === "Eof") return exprs
+    if (isEofToken(t)) return exprs
 
     const [remainingTokens, es] = parseStatement(tokens)
     return _produceAST(remainingTokens, A.push(es, exprs))

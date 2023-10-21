@@ -1,3 +1,6 @@
-let a = 1 + 1 
-let b=10*3
-a + b
+let a = 1 + 1
+let obj = {
+  foo 12
+  bar False
+  : a
+}

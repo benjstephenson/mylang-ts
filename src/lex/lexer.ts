@@ -35,7 +35,8 @@ const tokeniseAlpha = getTokeniser(isAlpha)
 const tokeniseNumber = getTokeniser(isNumber)
 
 export function tokenise(raw: string): Token[] {
-  const _tokenise = (chrs: string[], tokens: Token[]): Token[] => {
+
+  const _tokenise = (chrs: string[], tokens: Token[], pos: number): Token[] => {
     if (!isNonEmpty(chrs)) {
       return tokens
     }
@@ -43,23 +44,29 @@ export function tokenise(raw: string): Token[] {
     const [c, ...cs] = chrs
 
     if (isKnownSymbol(c)) {
-      return _tokenise(tail(chrs), push(SymbolToToken[c], tokens))
+      return _tokenise(tail(chrs), push(SymbolToToken[c](pos), tokens), ++pos)
+
     } else {
       if (isNumber(c)) {
         const [remainingChrs, numberStr] = tokeniseNumber(chrs)
         return _tokenise(
           remainingChrs,
-          push(NumberToken(numberStr), tokens),
+          push(NumberToken(numberStr, { start: pos, end: pos + numberStr.length - 1 }), tokens),
+          pos + numberStr.length
         )
+
       } else if (isAlpha(c)) {
         const [remainingChrs, token] = tokeniseAlpha(chrs)
 
         return _tokenise(
           remainingChrs,
-          push(keywordOrIdentifier(token), tokens),
+          push(keywordOrIdentifier(token, pos), tokens),
+          pos + token.length
         )
+
       } else if (isSkippable(c)) {
-        return _tokenise(cs, tokens)
+        return _tokenise(cs, tokens, ++pos)
+
       } else {
         console.log(`Unrecognised character found [${c}]`)
         return tokens
@@ -67,5 +74,5 @@ export function tokenise(raw: string): Token[] {
     }
   }
 
-  return push(EofToken, _tokenise(raw.split(""), []))
+  return push(EofToken, _tokenise(raw.split(""), [], 1))
 }

@@ -1,6 +1,7 @@
 export type NonEmptyArray<T> = [T, ...T[]]
 
 export const isNonEmpty = <T>(xs: T[]): xs is NonEmptyArray<T> => xs.length > 0
+export const isEmpty = <T>(xs: T[]): xs is [] => !isNonEmpty(xs)
 
 export const head = <T>(xs: NonEmptyArray<T>): T => xs[0]
 

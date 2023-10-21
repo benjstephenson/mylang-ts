@@ -1,23 +1,27 @@
 import { InfixOperator } from "../Symbols.ts"
+import { Location } from "../types.ts"
 
 export type Program = {
   _tag: "Program"
-  body: Expr[]
+  body: Expr[],
+  loc: Location
 }
-export const Program = (body: Expr[] = []): Program => ({ _tag: "Program", body })
+export const Program = (start: number, end: number, body: Expr[] = []): Program => ({ _tag: "Program", body, loc: { start, end } })
 
 export type LetDeclaration = {
   _tag: "LetDeclaration",
   identifier: string,
-  value: Expr
+  value: Expr,
+  loc: Location
 }
-export const LetDeclaration = (identifier: string, value: Expr): LetDeclaration => ({ _tag: "LetDeclaration", identifier, value })
+export const LetDeclaration = (identifier: string, value: Expr, loc: Location): LetDeclaration => ({ _tag: "LetDeclaration", identifier, value, loc })
 
 export type InfixExpr = {
   _tag: "InfixExpr"
   left: Expr
   right: Expr
-  operator: InfixOperator
+  operator: InfixOperator,
+  loc: Location
 }
 
 export const InfixExpr = (
@@ -29,44 +33,54 @@ export const InfixExpr = (
   left,
   right,
   operator,
+  loc: {
+    start: left.loc.start,
+    end: right.loc.end
+  }
 })
 
 export type Identifier = {
   _tag: "Identifier"
-  symbol: string
+  symbol: string,
+  loc: Location
 }
 
-export const Identifier = (symbol: string): Identifier => ({
+export const Identifier = (symbol: string, loc: Location): Identifier => ({
   _tag: "Identifier",
   symbol,
+  loc
 })
 
 export type NumericLiteral = {
   _tag: "NumericLiteral"
-  value: number
+  value: number,
+  loc: Location
 }
 
-export const NumericLiteral = (value: number): NumericLiteral => ({
+export const NumericLiteral = (value: number, loc: Location): NumericLiteral => ({
   _tag: "NumericLiteral",
   value,
+  loc
 })
 
 export type Property = {
   _tag: "Property",
   key: string,
-  value?: Expr
+  value?: Expr,
+  loc: Location
 }
 
-export const Property = (key: string, val: Expr | undefined = undefined): Property =>
+export const Property = (key: string, start: number, end: number, val: Expr | undefined = undefined): Property =>
   val === undefined
-    ? ({ _tag: "Property", key })
-    : ({ _tag: "Property", key, value: val })
+    ? ({ _tag: "Property", key, loc: { start, end } })
+    : ({ _tag: "Property", key, value: val, loc: { start, end } })
 
 export type ObjectLiteral = {
   _tag: "ObjectLiteral",
-  properties: Property[]
+  properties: Property[],
+  loc: Location
 }
-export const ObjectLiteral = (properties: Property[]): ObjectLiteral => ({ _tag: "ObjectLiteral", properties })
+export const ObjectLiteral = (properties: Property[], start: number, end: number): ObjectLiteral => ({ _tag: "ObjectLiteral", properties, loc: { start, end } })
 
 export type Expr = Program | LetDeclaration | InfixExpr | Identifier | NumericLiteral | Property | ObjectLiteral
 export type NodeType = Expr["_tag"]

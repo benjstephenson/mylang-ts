@@ -21,7 +21,7 @@ export const Symbols = {
   // Bang: "!" as const
 } as const
 
-export const SymbolToToken: Record<KnownSymbol, Token> = {
+export const SymbolToToken: Record<KnownSymbol, (start: number) => Token> = {
   [Symbols.OpenParen]: OpenParenToken,
   [Symbols.CloseParen]: CloseParenToken,
   [Symbols.OpenBrace]: OpenBraceToken,

@@ -23,8 +23,8 @@ async function repl() {
     const program = Parser.produceAST([input])
     console.log(JSON.stringify(program, null, 2))
 
-    const result = evaluate(program, env)
-    console.log(result)
+    // const result = evaluate(program, env)
+    // console.log(result)
   }
 }
 
@@ -33,9 +33,9 @@ async function run(filename: string) {
   const program = Parser.produceAST(input)
   console.log(JSON.stringify(program, null, 2))
 
-  const [result, e] = evaluate(program, env)
-  console.log(JSON.stringify(result, null, 2))
-  console.log(e)
+  // const [result, e] = evaluate(program, env)
+  // console.log(JSON.stringify(result, null, 2))
+  // console.log(e)
 }
 
 // repl()

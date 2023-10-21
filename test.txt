@@ -1,6 +1,10 @@
-let a = 1 + 1
+let foo = False
+
 let obj = {
-  foo 12
-  bar False
-  : a
+  x 100
+  y 32
+  : foo
+  complex {
+    bar True
+  }
 }

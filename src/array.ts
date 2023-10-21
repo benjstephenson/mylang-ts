@@ -10,6 +10,8 @@ export const tail = <T>(xs: T[]): T[] => {
   return tail || []
 }
 
+export const empty = <T>(): T[] => [] as T[]
+
 export const push = <T, R extends T>(x: R, xs: T[]): NonEmptyArray<T> => {
   xs.push(x)
   return xs as NonEmptyArray<T>

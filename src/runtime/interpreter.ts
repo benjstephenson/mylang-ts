@@ -1,4 +1,4 @@
-import { BooleanVal, isNumericVal, NumericVal, ObjectVal, RuntimeVal, UnitVal } from "./values"
+import { BooleanVal, isNativeFn, isNumericVal, NumericVal, ObjectVal, RuntimeVal, UnitVal } from "./values"
 import * as A from "../array"
 import * as AST from "../parse/ast"
 import * as Symbols from "../Symbols"
@@ -71,6 +71,23 @@ function evalInfixExpr(infix: AST.InfixExpr, env: Env.Environment): [RuntimeVal,
   )
 }
 
+function evalCallExpr(expr: AST.CallExpr, env: Env.Environment): [RuntimeVal, Env.Environment] {
+
+  const [args, updatedEnv] = expr.args.reduce<[RuntimeVal[], Env.Environment]>(
+    ([args, e], arg) => {
+      const [a, updatedEnv] = evaluate(arg, e)
+      return [A.push(a, args), updatedEnv]
+    }
+    , [A.empty<RuntimeVal>(), env]
+  )
+  const [fun, updatedEnv2] = evaluate(expr.caller, updatedEnv)
+
+  if (!isNativeFn(fun))
+    throw new Error(`${fun._tag} is not callable, at ${showLoc(expr.caller.loc)}`)
+
+  return [fun.call(args, updatedEnv2), updatedEnv2]
+}
+
 function evalProgram(prog: AST.Program, env: Env.Environment): [RuntimeVal, Env.Environment] {
 
   if (!A.isNonEmpty(prog.body)) return [UnitVal, env]
@@ -102,6 +119,9 @@ export function evaluate(astNode: AST.Expr, env: Env.Environment): [RuntimeVal, 
 
     case "InfixExpr":
       return evalInfixExpr(astNode, env)
+
+    case "CallExpr":
+      return evalCallExpr(astNode, env)
 
     case "Program":
       return evalProgram(astNode, env)

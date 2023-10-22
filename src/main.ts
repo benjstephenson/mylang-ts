@@ -6,12 +6,7 @@ import { False, NumericVal, True } from "./runtime/values"
 import * as fs from "fs"
 import { PrettyPrinter } from "mismatched"
 
-const [_, env] = pipe(
-  Env.Environment(),
-  Env.declare("x", NumericVal(100)),
-  Env.map(Env.declare("True", True)),
-  Env.map(Env.declare("False", False)),
-)
+const env = Env.createGlobalEnv()
 
 async function repl() {
   console.log("\nReplv0.0.1")

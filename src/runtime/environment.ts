@@ -1,8 +1,24 @@
-import { RuntimeVal } from "./values"
+import { pipe } from "../functions"
+import { False, NativeFn, NumericVal, RuntimeVal, True, UnitVal } from "./values"
 
 export type Environment = {
   parent: Environment | undefined
   variables: Map<string, RuntimeVal>
+}
+
+export function createGlobalEnv() {
+  const [_, env] = pipe(
+    Environment(),
+    declare("x", NumericVal(100)),
+    map(declare("True", True)),
+    map(declare("False", False)),
+    map(declare("print", NativeFn((args, scope) => {
+      console.log(...args)
+      return UnitVal
+    })))
+  )
+
+  return env
 }
 
 export const Environment = (parent?: Environment): Environment => ({ parent, variables: new Map<string, RuntimeVal>() })

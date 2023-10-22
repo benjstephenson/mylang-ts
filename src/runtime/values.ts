@@ -1,5 +1,6 @@
-export type ValueType = "number"
+import * as Env from "./environment"
 
+export type ValueType = "number"
 
 const is = <T extends RuntimeVal>(tag: T["_tag"]) => (t: any): t is T => t && t._tag === tag
 
@@ -31,4 +32,14 @@ export type ObjectVal = Readonly<{
 }>
 export const ObjectVal = (properties: [string, RuntimeVal][]): ObjectVal => ({ _tag: "ObjectVal", properties: new Map(properties) })
 
-export type RuntimeVal = UnitVal | NumericVal | BooleanVal | ObjectVal
+export type FunctionCall = (args: RuntimeVal[], env: Env.Environment) => RuntimeVal
+
+export type NativeFn = Readonly<{
+  _tag: "NativeFn",
+  call: FunctionCall
+}>
+
+export const NativeFn = (call: FunctionCall): NativeFn => ({ _tag: "NativeFn", call })
+export const isNativeFn = is<NativeFn>("NativeFn")
+
+export type RuntimeVal = UnitVal | NumericVal | BooleanVal | ObjectVal | NativeFn

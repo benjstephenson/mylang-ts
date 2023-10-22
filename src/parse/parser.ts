@@ -89,15 +89,8 @@ function parseMemberExpr(tokens: Token[]): [Token[], Expr] {
 }
 
 function parseArgs(tokens: Token[]): [Token[], Expr[]] {
-  const [head, ...tail] = tokens
-
-  // if (!isOpenParenToken(head)) throw new Error(`Expected OpenParen token for argument list ${head === undefined ? "" : `at ${showLoc(head.loc)}`}, but got ${head?._tag}`)
-
   const _parseArgsList = (toks: Token[], args: Expr[]): [Token[], Expr[]] => {
     const [first, ...tail] = toks
-
-    // if (isEofToken(first) || first === undefined)
-    //   throw new Error(`Expected argument list or closing paren`)// after ${showLoc(head.loc)}`)
 
     if (isCloseParenToken(first)) return [tail, args]
 
@@ -170,7 +163,6 @@ const parseAdditiveExpr = buildExprParser(
 function parseObjectExpr(tokens: Token[]): [Token[], Expr] {
   const [head, ...tail] = tokens
 
-  console.log(head?._tag)
   if (!isOpenBraceToken(head)) return parseAdditiveExpr(tokens)
 
   const _parseObjectExpr = (tokens: Token[], props: Property[], endLoc: number): [Token[], Property[], number] => {

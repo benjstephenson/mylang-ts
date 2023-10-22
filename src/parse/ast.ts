@@ -82,6 +82,25 @@ export type ObjectLiteral = {
 }
 export const ObjectLiteral = (properties: Property[], start: number, end: number): ObjectLiteral => ({ _tag: "ObjectLiteral", properties, loc: Location(start, end) })
 
-export type Expr = Program | LetDeclaration | InfixExpr | Identifier | NumericLiteral | Property | ObjectLiteral
+export type CallExpr = {
+  _tag: "CallExpr",
+  args: Expr[],
+  caller: Expr,
+  loc: Location
+}
+export const CallExpr = (caller: Expr, args: Expr[], loc: Location): CallExpr => ({ _tag: "CallExpr", args, caller, loc })
+
+export type MemberExpr = {
+  _tag: "MemberExpr",
+  object: Expr,
+  property: Expr,
+  computed: "Literal" | "Computed",
+  loc: Location
+}
+
+export const MemberExpr = (object: Expr, property: Expr, computed: "Literal" | "Computed", loc: Location): MemberExpr =>
+  ({ _tag: "MemberExpr", object, property, computed, loc })
+
+export type Expr = Program | LetDeclaration | InfixExpr | Identifier | NumericLiteral | Property | ObjectLiteral | CallExpr | MemberExpr
 export type NodeType = Expr["_tag"]
 

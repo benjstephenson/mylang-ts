@@ -23,9 +23,12 @@ export const isEqualsToken = is<EqualsToken>("Equals")
 
 export type OpenParenToken = { _tag: "OpenParen", loc: Location }
 export const OpenParenToken = (start: number): OpenParenToken => ({ _tag: "OpenParen", loc: symbolLocation(start) })
+export const isOpenParenToken = is<OpenParenToken>("OpenParen")
 
 export type CloseParenToken = { _tag: "CloseParen", loc: Location }
 export const CloseParenToken = (start: number): CloseParenToken => ({ _tag: "CloseParen", loc: symbolLocation(start) })
+export const isCloseParenToken = is<CloseParenToken>("CloseParen")
+
 
 export type InfixOperatorToken = { _tag: "InfixOperator", value: InfixOperator, loc: Location }
 export const InfixOperatorToken = (value: InfixOperator) => (start: number): InfixOperatorToken => ({ _tag: "InfixOperator", value, loc: symbolLocation(start) })
@@ -34,6 +37,10 @@ export const isInfixOperatorToken = is<InfixOperatorToken>("InfixOperator")
 
 export type CommaToken = { _tag: "Comma", loc: Location }
 export const CommaToken = (start: number): CommaToken => ({ _tag: "Comma", loc: symbolLocation(start) })
+
+export type DotToken = { _tag: "Dot", loc: Location }
+export const DotToken = (start: number): DotToken => ({ _tag: "Dot", loc: symbolLocation(start) })
+export const isDotToken = is<DotToken>("Dot")
 
 export type ColonToken = { _tag: "Colon", loc: Location }
 export const ColonToken = (start: number): ColonToken => ({ _tag: "Colon", loc: symbolLocation(start) })
@@ -50,13 +57,23 @@ export type CloseBraceToken = { _tag: "CloseBrace", loc: Location }
 export const CloseBraceToken = (start: number): CloseBraceToken => ({ _tag: "CloseBrace", loc: symbolLocation(start) })
 export const isCloseBraceToken = is<CloseBraceToken>("CloseBrace")
 
-export type EofToken = { _tag: "Eof" }
-export const EofToken: EofToken = { _tag: "Eof" }
+export type OpenBracketToken = { _tag: "OpenBracket", loc: Location }
+export const OpenBracketToken = (start: number): OpenBracketToken => ({ _tag: "OpenBracket", loc: symbolLocation(start) })
+export const isOpenBracketToken = is<OpenBracketToken>("OpenBracket")
+
+export type CloseBracketToken = { _tag: "CloseBracket", loc: Location }
+export const CloseBracketToken = (start: number): CloseBracketToken => ({ _tag: "CloseBracket", loc: symbolLocation(start) })
+export const isCloseBracketToken = is<CloseBracketToken>("CloseBracket")
+
+
+
+export type EofToken = { _tag: "Eof", loc: Location }
+export const EofToken: EofToken = { _tag: "Eof", loc: { _tag: "Location", start: -1, end: -1 } }
 export const isEofToken = is<EofToken>(EofToken._tag)
 
 
-type SymbolToken = EqualsToken | OpenParenToken | CloseParenToken | OpenBraceToken |
-  CloseBraceToken | CommaToken | ColonToken | SemiColonToken | InfixOperatorToken
+type SymbolToken = EqualsToken | DotToken | OpenParenToken | CloseParenToken | OpenBraceToken |
+  CloseBraceToken | OpenBracketToken | CloseBracketToken | CommaToken | ColonToken | SemiColonToken | InfixOperatorToken
 
 export type Token = NumberToken | IdentifierToken | LetToken | SymbolToken | EofToken
 

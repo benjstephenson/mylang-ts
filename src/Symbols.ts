@@ -1,4 +1,4 @@
-import { CloseBraceToken, CloseParenToken, ColonToken, EqualsToken, InfixOperatorToken, OpenBraceToken, OpenParenToken, SemiColonToken, Token } from "./lex/Tokens";
+import { CloseBraceToken, CloseBracketToken, CloseParenToken, ColonToken, DotToken, EqualsToken, InfixOperatorToken, OpenBraceToken, OpenBracketToken, OpenParenToken, SemiColonToken, Token } from "./lex/Tokens";
 import { ElementOf, PropertyOf } from "./types"
 
 export const Symbols = {
@@ -6,6 +6,9 @@ export const Symbols = {
   CloseParen: ")" as const,
   OpenBrace: "{" as const,
   CloseBrace: "}" as const,
+  OpenBracket: "[" as const,
+  CloseBracket: "]" as const,
+  Dot: "." as const,
   Equals: "=" as const,
   Plus: "+" as const,
   Minus: "-" as const,
@@ -26,6 +29,9 @@ export const SymbolToToken: Record<KnownSymbol, (start: number) => Token> = {
   [Symbols.CloseParen]: CloseParenToken,
   [Symbols.OpenBrace]: OpenBraceToken,
   [Symbols.CloseBrace]: CloseBraceToken,
+  [Symbols.OpenBracket]: OpenBracketToken,
+  [Symbols.CloseBracket]: CloseBracketToken,
+  [Symbols.Dot]: DotToken,
   [Symbols.Equals]: EqualsToken,
   [Symbols.Plus]: InfixOperatorToken("+"),
   [Symbols.Minus]: InfixOperatorToken("-"),

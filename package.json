@@ -5,6 +5,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.8.7",
+    "mismatched": "^2.11.2",
     "tsx": "^3.14.0",
     "typescript": "^5.2.2"
   }

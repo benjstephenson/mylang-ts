@@ -1,10 +1,1 @@
-let foo = False
-
-let obj = {
-  x 100
-  y 32
-  : foo
-  complex {
-    bar True
-  }
-}
+obj.complex(bar(x y))

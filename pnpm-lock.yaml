@@ -8,6 +8,9 @@ devDependencies:
   '@types/node':
     specifier: ^20.8.7
     version: 20.8.7
+  mismatched:
+    specifier: ^2.11.2
+    version: 2.11.2
   tsx:
     specifier: ^3.14.0
     version: 3.14.0
@@ -255,6 +258,10 @@ packages:
       '@esbuild/win32-x64': 0.18.20
     dev: true
 
+  /fast-array-diff@1.0.1:
+    resolution: {integrity: sha512-pU83E/Y7+c/hRrDlmIiPYHy0Ugt+QypqzHKZI5qFOWMJAspWdmOyIeN/1FbdnGPlROp6FeGLLfhMO075DBqb4A==}
+    dev: true
+
   /fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -267,6 +274,29 @@ packages:
     resolution: {integrity: sha512-wuMsz4leaj5hbGgg4IvDU0bqJagpftG5l5cXIAvo8uZrqn0NJqwtfupTN00VnkQJPcIRrxYrm1Ue24btpCha2A==}
     dependencies:
       resolve-pkg-maps: 1.0.0
+    dev: true
+
+  /hamt_plus@1.0.2:
+    resolution: {integrity: sha512-t2JXKaehnMb9paaYA7J0BX8QQAY8lwfQ9Gjf4pg/mk4krt+cmwmU652HOoWonf+7+EQV97ARPMhhVgU1ra2GhA==}
+    dev: true
+
+  /list@2.0.19:
+    resolution: {integrity: sha512-nnVaRp4RaMAQkCpypTThsdxKqgPMiSwJq93eAm2/IbpUa8sd04XKBhkKu+bMk63HmdjK8b8Cuh4xARHWX2ye/Q==}
+    dev: true
+
+  /mismatched@2.11.2:
+    resolution: {integrity: sha512-0iUgg9FAb2ysmj2OGhlG90vsajKUYTe+nT8sg8OrE6B0JBicOBqyDqTqaqLUnn74pnAaMxSLSQ3YmsjuCtBlLA==}
+    engines: {node: '>=10.13.0'}
+    dependencies:
+      fast-array-diff: 1.0.1
+      prelude-ts: 1.0.5
+    dev: true
+
+  /prelude-ts@1.0.5:
+    resolution: {integrity: sha512-Kf+/gm2QlRlSHQ6X4JBgpwMGgNyiJJUMkzt/1VRU13jHNFBdB0YiFrucWNhrdourET9zXFB5Vs8gwmiK5Fpkcw==}
+    dependencies:
+      hamt_plus: 1.0.2
+      list: 2.0.19
     dev: true
 
   /resolve-pkg-maps@1.0.0:

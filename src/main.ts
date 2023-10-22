@@ -4,6 +4,7 @@ import * as Env from "./runtime/environment"
 import { evaluate } from "./runtime/interpreter"
 import { False, NumericVal, True } from "./runtime/values"
 import * as fs from "fs"
+import { PrettyPrinter } from "mismatched"
 
 const [_, env] = pipe(
   Env.Environment(),
@@ -33,11 +34,10 @@ async function run(filename: string) {
   // const input = (await Deno.readTextFile(filename)).split("\\n")
   const input = fs.readFileSync(filename, "utf-8").split("\\n")
   const program = Parser.produceAST(input)
-  console.log(JSON.stringify(program, null, 2))
+  PrettyPrinter.logToConsole(program)
 
   const [result, e] = evaluate(program, env)
-  console.log(JSON.stringify(result, null, 2))
-  console.log(e)
+
 }
 
 // repl()

@@ -108,7 +108,7 @@ export function evaluate(astNode: AST.Expr, env: Env.Environment): [RuntimeVal, 
 
     default:
       throw new Error(
-        `Failed to eval ${astNode._tag} node at ${showLoc(astNode.loc)}`,
+        `Failed to eval ${JSON.stringify(astNode, null, 2)} node at ${showLoc(astNode.loc)}`,
       )
   }
 }

@@ -1,1 +1,11 @@
-print(1 * 23 / 4)
+
+fun makeAdder(offset) {
+  fun add(x y) {
+    x + y + offset
+  }
+
+  add
+}
+
+let adder = makeAdder(1)
+print(adder(10 5))

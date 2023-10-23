@@ -12,7 +12,7 @@ export function createGlobalEnv() {
     declare("x", NumericVal(100)),
     map(declare("True", True)),
     map(declare("False", False)),
-    map(declare("print", NativeFn((args, scope) => {
+    map(declare("print", NativeFn((args, _scope) => {
       console.log(...args)
       return UnitVal
     })))

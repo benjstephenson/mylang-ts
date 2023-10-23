@@ -1,10 +1,14 @@
 import { InfixOperator } from "../Symbols"
+import { notUndefinedOrNull } from "../functions"
 import { Location } from "../types"
 
-const notUndefinedOrNull = (t: any): boolean => t !== undefined && t !== null
 const is = <T extends Token>(tag: T["_tag"]) => (t: any): t is T => notUndefinedOrNull(t) && t._tag === tag
 
 const symbolLocation = (start: number): Location => Location(start, start)
+
+export type QuoteToken = { _tag: "Quote", loc: Location }
+export const QuoteToken = (start: number): QuoteToken => ({ _tag: "Quote", loc: symbolLocation(start) })
+export const isQuoteToken = is<QuoteToken>("Quote")
 
 export type NumberToken = { _tag: "Number", value: string, loc: Location }
 export const NumberToken = (value: string, loc: Location): NumberToken => ({ _tag: "Number", value, loc })
@@ -12,6 +16,11 @@ export const NumberToken = (value: string, loc: Location): NumberToken => ({ _ta
 export type IdentifierToken = { _tag: "Identifier", value: string, loc: Location }
 export const IdentifierToken = (value: string, start: number): IdentifierToken => ({ _tag: "Identifier", value, loc: Location(start, start + value.length - 1) })
 export const isIdentifierToken = is<IdentifierToken>("Identifier")
+
+export type FunToken = { _tag: "Fun", loc: Location }
+export const FunToken = (start: number): FunToken => ({ _tag: "Fun", loc: Location(start, start + 2) })
+export const isFunToken = is<FunToken>("Fun")
+
 
 export type LetToken = { _tag: "Let", loc: Location }
 export const LetToken = (start: number): LetToken => ({ _tag: "Let", loc: Location(start, start + 2) })
@@ -72,10 +81,10 @@ export const EofToken: EofToken = { _tag: "Eof", loc: { _tag: "Location", start:
 export const isEofToken = is<EofToken>(EofToken._tag)
 
 
-type SymbolToken = EqualsToken | DotToken | OpenParenToken | CloseParenToken | OpenBraceToken |
+type SymbolToken = QuoteToken | EqualsToken | DotToken | OpenParenToken | CloseParenToken | OpenBraceToken |
   CloseBraceToken | OpenBracketToken | CloseBracketToken | CommaToken | ColonToken | SemiColonToken | InfixOperatorToken
 
-export type Token = NumberToken | IdentifierToken | LetToken | SymbolToken | EofToken
+export type Token = FunToken | NumberToken | IdentifierToken | LetToken | SymbolToken | EofToken
 
 export type TokenType = Token["_tag"]
 

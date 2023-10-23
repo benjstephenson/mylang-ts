@@ -3,6 +3,7 @@ import { Location, showLoc } from "../types"
 import * as A from "../array"
 import {
   CloseBracketToken,
+  IdentifierToken,
   Token,
   TokenType,
   isCloseBraceToken,
@@ -12,6 +13,7 @@ import {
   isDotToken,
   isEofToken,
   isEqualsToken,
+  isFunToken,
   isIdentifierToken,
   isInfixOperatorToken,
   isLetToken,
@@ -23,6 +25,7 @@ import { tokenise } from "../lex/lexer"
 import {
   CallExpr,
   Expr,
+  FunDeclaration,
   Identifier,
   InfixExpr,
   LetDeclaration,
@@ -31,6 +34,7 @@ import {
   ObjectLiteral,
   Program,
   Property,
+  isIdentifier,
 } from "./ast"
 import { PrettyPrinter } from "mismatched"
 
@@ -225,10 +229,37 @@ function parseExpr(tokens: Token[]): [Token[], Expr] {
   return parseObjectExpr(tokens)
 }
 
-function parseStatement(tokens: A.NonEmptyArray<Token>): [Token[], Expr] {
+function parseFunDeclaration(tokens: Token[], start: number): [Token[], Expr] {
+  const [name, open, ...tail] = tokens
+
+  if (!isIdentifierToken(name)) throw new Error(`Expected identifier for fuction name at??`)
+  if (!isOpenParenToken(open)) throw new Error(`Expected open parenthesis for function arg list`)
+
+  const [[t, ...remainingTokens], args] = parseArgs(tail)
+  if (!args.every<Identifier>(isIdentifier)) throw new Error(`Expected identifier list for fun parameters at??`)
+  if (!isOpenBraceToken(t)) throw new Error(`Expected OpenBrace token to start function body at???`)
+
+  const _parseBody = (tokens: Token[], body: Expr[]): [Token[], Expr[], number] => {
+    const [head, ...tail] = tokens
+
+    if (isCloseBraceToken(head)) return [tail, body, head.loc.end]
+
+    const [remainingTokens, expr] = parseStatement(tokens)
+    return _parseBody(remainingTokens, A.push(expr, body))
+  }
+
+  const [remainingTokens2, body, end] = _parseBody(remainingTokens, A.empty<Expr>())
+
+  return [remainingTokens2, FunDeclaration(name.value, args.map(s => s.symbol), body, Location(start, end))]
+
+}
+
+function parseStatement(tokens: Token[]): [Token[], Expr] {
   const [head, ...tail] = tokens
 
   if (isLetToken(head)) return parseLetDeclaration(tail, head.loc.start)
+
+  if (isFunToken(head)) return parseFunDeclaration(tail, head.loc.start)
 
   return parseExpr(tokens)
 }

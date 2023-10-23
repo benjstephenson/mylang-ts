@@ -1,9 +1,10 @@
-import { BooleanVal, isNativeFn, isNumericVal, NumericVal, ObjectVal, RuntimeVal, UnitVal } from "./values"
+import { BooleanVal, Fun, isFun, isNativeFn, isNumericVal, NumericVal, ObjectVal, RuntimeVal, UnitVal } from "./values"
 import * as A from "../array"
 import * as AST from "../parse/ast"
 import * as Symbols from "../Symbols"
 import { ExhaustiveMatchError, showLoc } from "../types"
 import * as Env from "./environment"
+import { pipe } from "../functions"
 
 function evalNumericExpr(lhs: NumericVal, rhs: NumericVal, op: Symbols.InfixOperator): NumericVal {
 
@@ -29,8 +30,8 @@ function evalNumericExpr(lhs: NumericVal, rhs: NumericVal, op: Symbols.InfixOper
   return NumericVal(doCalc())
 }
 
-// function evaliateBooleanExpr(lhs: BooleanVal, rhs: BooleanVal, op: Symbols.InfixOperator) {
-// }
+function evaliateBooleanExpr(lhs: BooleanVal, rhs: BooleanVal, op: Symbols.InfixOperator) {
+}
 
 function evalObjectExpr(obj: AST.ObjectLiteral, env: Env.Environment): [RuntimeVal, Env.Environment] {
   const [objectProperties, updatedEnvironment] = obj.properties.reduce<[[string, RuntimeVal][], Env.Environment]>(([props, e], { key, value }) => {
@@ -50,6 +51,11 @@ function evalObjectExpr(obj: AST.ObjectLiteral, env: Env.Environment): [RuntimeV
 
 function evalIdentifier(id: AST.Identifier, env: Env.Environment): [RuntimeVal, Env.Environment] {
   return [Env.lookup(id.symbol)(env), env]
+}
+
+function evalFunDeclaration(funDecl: AST.FunDeclaration, env: Env.Environment): [RuntimeVal, Env.Environment] {
+  const f = Fun(funDecl.name, funDecl.parameters, env, funDecl.body)
+  return Env.declare(f.name, f)(env)
 }
 
 function evalLetDeclaration(letDecl: AST.LetDeclaration, env: Env.Environment): [RuntimeVal, Env.Environment] {
@@ -82,10 +88,24 @@ function evalCallExpr(expr: AST.CallExpr, env: Env.Environment): [RuntimeVal, En
   )
   const [fun, updatedEnv2] = evaluate(expr.caller, updatedEnv)
 
-  if (!isNativeFn(fun))
-    throw new Error(`${fun._tag} is not callable, at ${showLoc(expr.caller.loc)}`)
+  if (isNativeFn(fun))
+    return [fun.call(args, updatedEnv2), updatedEnv2]
+  else if (isFun(fun)) {
 
-  return [fun.call(args, updatedEnv2), updatedEnv2]
+    if (args.length !== fun.parameters.length)
+      throw new Error(`Argument length mismatch calling ${fun.name} at ${showLoc(expr.caller.loc)}`)
+
+    const zipped = A.zip(args, fun.parameters)
+
+    const scope = zipped.reduce((acc, [argVal, name]) =>
+      Env.declare(name, argVal)(acc)[1]
+      , Env.Environment(fun.declarationEnv))
+
+    return fun.body.reduce<[RuntimeVal, Env.Environment]>(([_, e], expr) => evaluate(expr, e), [UnitVal, scope])
+  }
+
+  throw new Error(`${fun._tag} is not callable, at ${showLoc(expr.caller.loc)}`)
+
 }
 
 function evalProgram(prog: AST.Program, env: Env.Environment): [RuntimeVal, Env.Environment] {
@@ -107,6 +127,10 @@ export function evaluate(astNode: AST.Expr, env: Env.Environment): [RuntimeVal, 
   switch (astNode._tag) {
     case "Identifier":
       return evalIdentifier(astNode, env)
+
+    case "Fun":
+      return evalFunDeclaration(astNode, env)
+
 
     case "LetDeclaration":
       return evalLetDeclaration(astNode, env)

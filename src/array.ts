@@ -24,3 +24,11 @@ export const popExpected = <T>(t: T, ts: T[]): T[] => {
 
   return tail
 }
+
+
+export const zip = <A, B>(a: A[], b: B[]): [A, B][] => {
+  return a.reduce((acc, v, i) => {
+    const _b = b[i]
+    return _b === undefined ? acc : push([v, _b], acc)
+  }, empty<[A, B]>())
+}

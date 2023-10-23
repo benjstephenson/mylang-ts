@@ -1,6 +1,8 @@
 import { InfixOperator } from "../Symbols"
+import { notUndefinedOrNull } from "../functions"
 import { Location } from "../types"
 
+const is = <T extends Expr>(tag: T["_tag"]) => (t: any): t is T => notUndefinedOrNull(t) && t._tag === tag
 export type Program = {
   _tag: "Program"
   body: Expr[],
@@ -50,6 +52,8 @@ export const Identifier = (symbol: string, loc: Location): Identifier => ({
   symbol,
   loc
 })
+
+export const isIdentifier = is<Identifier>("Identifier")
 
 export type NumericLiteral = {
   _tag: "NumericLiteral"
@@ -101,6 +105,15 @@ export type MemberExpr = {
 export const MemberExpr = (object: Expr, property: Expr, computed: "Literal" | "Computed", loc: Location): MemberExpr =>
   ({ _tag: "MemberExpr", object, property, computed, loc })
 
-export type Expr = Program | LetDeclaration | InfixExpr | Identifier | NumericLiteral | Property | ObjectLiteral | CallExpr | MemberExpr
+export type FunDeclaration = {
+  _tag: "Fun",
+  parameters: string[],
+  name: string,
+  body: Expr[],
+  loc: Location
+}
+export const FunDeclaration = (name: string, parameters: string[], body: Expr[], loc: Location): FunDeclaration => ({ _tag: "Fun", name, parameters, body, loc })
+
+export type Expr = Program | FunDeclaration | LetDeclaration | InfixExpr | Identifier | NumericLiteral | Property | ObjectLiteral | CallExpr | MemberExpr
 export type NodeType = Expr["_tag"]
 

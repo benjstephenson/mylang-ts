@@ -278,3 +278,5 @@ export function tuple<T extends ReadonlyArray<any>>(...t: T) {
 }
 
 
+export const notUndefinedOrNull = (t: any): boolean => t !== undefined && t !== null
+

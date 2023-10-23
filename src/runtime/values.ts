@@ -1,3 +1,4 @@
+import { Expr } from "../parse/ast"
 import * as Env from "./environment"
 
 export type ValueType = "number"
@@ -42,4 +43,17 @@ export type NativeFn = Readonly<{
 export const NativeFn = (call: FunctionCall): NativeFn => ({ _tag: "NativeFn", call })
 export const isNativeFn = is<NativeFn>("NativeFn")
 
-export type RuntimeVal = UnitVal | NumericVal | BooleanVal | ObjectVal | NativeFn
+export type Fun = Readonly<{
+  _tag: "Fun",
+  name: string,
+  parameters: string[],
+  declarationEnv: Env.Environment,
+  body: Expr[]
+}>
+
+export const Fun = (name: string, parameters: string[], declarationEnv: Env.Environment, body: Expr[]): Fun => ({ _tag: "Fun", name, parameters, declarationEnv, body })
+export const isFun = is<Fun>("Fun")
+
+
+
+export type RuntimeVal = UnitVal | NumericVal | BooleanVal | ObjectVal | NativeFn | Fun

@@ -26,7 +26,6 @@ async function repl() {
 }
 
 async function run(filename: string) {
-  // const input = (await Deno.readTextFile(filename)).split("\\n")
   const input = fs.readFileSync(filename, "utf-8").split("\\n")
   const program = Parser.produceAST(input)
   PrettyPrinter.logToConsole(program)

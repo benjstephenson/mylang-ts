@@ -1,4 +1,4 @@
-import { BooleanVal, Fun, isFun, isNativeFn, isNumericVal, NumericVal, ObjectVal, RuntimeVal, UnitVal } from "./values"
+import { BooleanVal, Fun, isFun, isNativeFn, isNumericVal, NumericVal, ObjectVal, RuntimeVal, StringVal, UnitVal } from "./values"
 import * as A from "../array"
 import * as AST from "../parse/ast"
 import * as Symbols from "../Symbols"
@@ -140,6 +140,9 @@ export function evaluate(astNode: AST.Expr, env: Env.Environment): [RuntimeVal, 
 
     case "NumericLiteral":
       return [NumericVal(astNode.value), env]
+
+    case "StringLiteral":
+      return [StringVal(astNode.value), env]
 
     case "InfixExpr":
       return evalInfixExpr(astNode, env)

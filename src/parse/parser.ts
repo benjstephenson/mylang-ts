@@ -22,20 +22,7 @@ import {
   isOpenParenToken,
 } from "../lex/Tokens"
 import { tokenise } from "../lex/lexer"
-import {
-  CallExpr,
-  Expr,
-  FunDeclaration,
-  Identifier,
-  InfixExpr,
-  LetDeclaration,
-  MemberExpr,
-  NumericLiteral,
-  ObjectLiteral,
-  Program,
-  Property,
-  isIdentifier,
-} from "./ast"
+import * as AST from "./ast"
 import { PrettyPrinter } from "mismatched"
 
 function popExpected(tokenType: TokenType, tokens: Token[]): Token[] {
@@ -47,16 +34,19 @@ function popExpected(tokenType: TokenType, tokens: Token[]): Token[] {
   return tail
 }
 
-function parsePrimaryExpr(tokens: Token[]): [Token[], Expr] {
+function parsePrimaryExpr(tokens: Token[]): [Token[], AST.Expr] {
   const [token, ...tail] = tokens
 
   if (token === undefined || isEofToken(token)) throw new Error("Unexpected end of token list")
 
   switch (token._tag) {
     case "Identifier":
-      return [tail, Identifier(token.value, token.loc)]
+      return [tail, AST.Identifier(token.value, token.loc)]
     case "Number":
-      return [tail, NumericLiteral(parseFloat(token.value), token.loc)]
+      return [tail, AST.NumericLiteral(parseFloat(token.value), token.loc)]
+
+    case "String":
+      return [tail, AST.StringLiteral(token.value, token.loc)]
 
     case "OpenParen": {
       // TODO probably need to pad the Expr loc left and right here to account for the braces
@@ -69,10 +59,10 @@ function parsePrimaryExpr(tokens: Token[]): [Token[], Expr] {
   }
 }
 
-function parseMemberExpr(tokens: Token[]): [Token[], Expr] {
+function parseMemberExpr(tokens: Token[]): [Token[], AST.Expr] {
   const [remainingTokens, object] = parsePrimaryExpr(tokens)
 
-  const _parseMemberExpr = (tokens: Token[], expr: Expr): [Token[], Expr] => {
+  const _parseMemberExpr = (tokens: Token[], expr: AST.Expr): [Token[], AST.Expr] => {
     const [head, ...tail] = tokens
     if (!(isDotToken(head) || isOpenBracketToken(head))) return [tokens, expr]
 
@@ -80,20 +70,20 @@ function parseMemberExpr(tokens: Token[]): [Token[], Expr] {
       const [rest, property] = parsePrimaryExpr(tail)
       if (!isIdentifierToken(property)) throw new Error(`Expected identifier in member expression at ${head.loc.end}`)
 
-      return _parseMemberExpr(rest, MemberExpr(expr, property, "Literal", Location(expr.loc.start, property.loc.end)))
+      return _parseMemberExpr(rest, AST.MemberExpr(expr, property, "Literal", Location(expr.loc.start, property.loc.end)))
     }
 
     const [[bracket, ...rest], property] = parseExpr(tail)
     if (!isCloseBracketToken(bracket)) throw new Error(`Expected closing bracket in member expression at ${property.loc.end}`)
 
-    return _parseMemberExpr(rest, MemberExpr(expr, property, "Computed", Location(expr.loc.start, property.loc.end)))
+    return _parseMemberExpr(rest, AST.MemberExpr(expr, property, "Computed", Location(expr.loc.start, property.loc.end)))
   }
 
   return _parseMemberExpr(remainingTokens, object)
 }
 
-function parseArgs(tokens: Token[]): [Token[], Expr[]] {
-  const _parseArgsList = (toks: Token[], args: Expr[]): [Token[], Expr[]] => {
+function parseArgs(tokens: Token[]): [Token[], AST.Expr[]] {
+  const _parseArgsList = (toks: Token[], args: AST.Expr[]): [Token[], AST.Expr[]] => {
     const [first, ...tail] = toks
 
     if (isCloseParenToken(first)) return [tail, args]
@@ -105,9 +95,9 @@ function parseArgs(tokens: Token[]): [Token[], Expr[]] {
   return _parseArgsList(tokens, [])
 }
 
-function parseCallExpr(caller: Expr, tokens: Token[]): [Token[], Expr] {
+function parseCallExpr(caller: AST.Expr, tokens: Token[]): [Token[], AST.Expr] {
   const [remainingTokens, args] = parseArgs(tokens)
-  const callExpr = CallExpr(caller, args, Location(caller.loc.start, args[args.length - 1]?.loc.end || -1))
+  const callExpr = AST.CallExpr(caller, args, Location(caller.loc.start, args[args.length - 1]?.loc.end || -1))
   const [head, ...tail] = remainingTokens
 
   return isOpenParenToken(head)
@@ -116,7 +106,7 @@ function parseCallExpr(caller: Expr, tokens: Token[]): [Token[], Expr] {
 
 }
 
-function parseCallMemberExpr(tokens: Token[]): [Token[], Expr] {
+function parseCallMemberExpr(tokens: Token[]): [Token[], AST.Expr] {
   const [remainingTokens, member] = parseMemberExpr(tokens)
   const [head, ...tail] = remainingTokens
 
@@ -127,9 +117,9 @@ function parseCallMemberExpr(tokens: Token[]): [Token[], Expr] {
 
 function buildExprParser(
   operators: InfixOperator[],
-  parser: (tokens: Token[]) => [Token[], Expr],
-): (tokens: Token[]) => [Token[], Expr] {
-  const _parse = (tokens: Token[], expr: Expr): [Token[], Expr] => {
+  parser: (tokens: Token[]) => [Token[], AST.Expr],
+): (tokens: Token[]) => [Token[], AST.Expr] {
+  const _parse = (tokens: Token[], expr: AST.Expr): [Token[], AST.Expr] => {
     const [head, ...tail] = tokens
 
     if (!isInfixOperatorToken(head) || !operators.includes(head.value)) {
@@ -141,11 +131,11 @@ function buildExprParser(
 
     return _parse(
       remainingTokens,
-      InfixExpr(expr, right, operator),
+      AST.InfixExpr(expr, right, operator),
     )
   }
 
-  return (tokens: Token[]): [Token[], Expr] => {
+  return (tokens: Token[]): [Token[], AST.Expr] => {
     const [remainingTokens, left] = parser(tokens)
     return _parse(remainingTokens, left)
   }
@@ -164,12 +154,12 @@ const parseAdditiveExpr = buildExprParser(
   parseMultiplicativeExpr,
 )
 
-function parseObjectExpr(tokens: Token[]): [Token[], Expr] {
+function parseObjectExpr(tokens: Token[]): [Token[], AST.Expr] {
   const [head, ...tail] = tokens
 
   if (!isOpenBraceToken(head)) return parseAdditiveExpr(tokens)
 
-  const _parseObjectExpr = (tokens: Token[], props: Property[], endLoc: number): [Token[], Property[], number] => {
+  const _parseObjectExpr = (tokens: Token[], props: AST.Property[], endLoc: number): [Token[], AST.Property[], number] => {
     const [head, t, ...tail] = tokens
 
     if (!head || isCloseBraceToken(head) || isEofToken(head)) {
@@ -187,7 +177,7 @@ function parseObjectExpr(tokens: Token[]): [Token[], Expr] {
       const [remainingTokens, expr] = parseExpr([t, ...tail])
       return _parseObjectExpr(
         remainingTokens,
-        A.push(Property(head.value, Location(head.loc.start, expr.loc.end), expr), props),
+        A.push(AST.Property(head.value, Location(head.loc.start, expr.loc.end), expr), props),
         expr.loc.end
       )
     }
@@ -196,7 +186,7 @@ function parseObjectExpr(tokens: Token[]): [Token[], Expr] {
       if (isIdentifierToken(t)) {
         return _parseObjectExpr(
           tail,
-          A.push(Property(t.value, Location(head.loc.start, t.loc.end)), props),
+          A.push(AST.Property(t.value, Location(head.loc.start, t.loc.end)), props),
           t.loc.end
         )
       }
@@ -210,10 +200,10 @@ function parseObjectExpr(tokens: Token[]): [Token[], Expr] {
   }
 
   const [remainingTokens, properties, end] = _parseObjectExpr(tail, [], 0)
-  return [remainingTokens, ObjectLiteral(properties, head.loc.start, end)]
+  return [remainingTokens, AST.ObjectLiteral(properties, head.loc.start, end)]
 }
 
-function parseLetDeclaration(tokens: Token[], start: number): [Token[], Expr] {
+function parseLetDeclaration(tokens: Token[], start: number): [Token[], AST.Expr] {
   const [head, eq, ...tail] = tokens
 
   if (!isIdentifierToken(head)) return parseExpr(tokens)
@@ -221,25 +211,25 @@ function parseLetDeclaration(tokens: Token[], start: number): [Token[], Expr] {
     throw new Error(`Expected Equals symbol ${eq !== undefined ? `at pos ${showLoc(eq.loc)} ` : `after ${head.loc.end}`}, but found ${eq?._tag}`)
 
   const [remainingTokens, value] = parseExpr(tail)
-  return [remainingTokens, LetDeclaration(head.value, value, Location(start, value.loc.end))]
+  return [remainingTokens, AST.LetDeclaration(head.value, value, Location(start, value.loc.end))]
 }
 
-function parseExpr(tokens: Token[]): [Token[], Expr] {
+function parseExpr(tokens: Token[]): [Token[], AST.Expr] {
   // return parseAdditiveExpr(tokens)
   return parseObjectExpr(tokens)
 }
 
-function parseFunDeclaration(tokens: Token[], start: number): [Token[], Expr] {
+function parseFunDeclaration(tokens: Token[], start: number): [Token[], AST.Expr] {
   const [name, open, ...tail] = tokens
 
   if (!isIdentifierToken(name)) throw new Error(`Expected identifier for fuction name at??`)
   if (!isOpenParenToken(open)) throw new Error(`Expected open parenthesis for function arg list`)
 
   const [[t, ...remainingTokens], args] = parseArgs(tail)
-  if (!args.every<Identifier>(isIdentifier)) throw new Error(`Expected identifier list for fun parameters at??`)
+  if (!args.every<AST.Identifier>(AST.isIdentifier)) throw new Error(`Expected identifier list for fun parameters at??`)
   if (!isOpenBraceToken(t)) throw new Error(`Expected OpenBrace token to start function body at???`)
 
-  const _parseBody = (tokens: Token[], body: Expr[]): [Token[], Expr[], number] => {
+  const _parseBody = (tokens: Token[], body: AST.Expr[]): [Token[], AST.Expr[], number] => {
     const [head, ...tail] = tokens
 
     if (isCloseBraceToken(head)) return [tail, body, head.loc.end]
@@ -248,13 +238,13 @@ function parseFunDeclaration(tokens: Token[], start: number): [Token[], Expr] {
     return _parseBody(remainingTokens, A.push(expr, body))
   }
 
-  const [remainingTokens2, body, end] = _parseBody(remainingTokens, A.empty<Expr>())
+  const [remainingTokens2, body, end] = _parseBody(remainingTokens, A.empty<AST.Expr>())
 
-  return [remainingTokens2, FunDeclaration(name.value, args.map(s => s.symbol), body, Location(start, end))]
+  return [remainingTokens2, AST.FunDeclaration(name.value, args.map(s => s.symbol), body, Location(start, end))]
 
 }
 
-function parseStatement(tokens: Token[]): [Token[], Expr] {
+function parseStatement(tokens: Token[]): [Token[], AST.Expr] {
   const [head, ...tail] = tokens
 
   if (isLetToken(head)) return parseLetDeclaration(tail, head.loc.start)
@@ -273,8 +263,8 @@ function parseStatement(tokens: Token[]): [Token[], Expr] {
 // Call
 // Member
 // PrimaryExpr
-export function produceAST(raw: string[]): Program {
-  const _produceAST = (tokens: Token[], exprs: Expr[], start: number, end: number): [number, number, Expr[]] => {
+export function produceAST(raw: string[]): AST.Program {
+  const _produceAST = (tokens: Token[], exprs: AST.Expr[], start: number, end: number): [number, number, AST.Expr[]] => {
     if (!A.isNonEmpty(tokens)) return [start, end, exprs]
 
     const t = A.head(tokens)
@@ -287,6 +277,7 @@ export function produceAST(raw: string[]): Program {
 
   const tokens = raw.flatMap(tokenise)
 
+  console.log(tokens)
   const [start, end, body] = _produceAST(tokens, [], 0, 0)
-  return Program(start, end, body)
+  return AST.Program(start, end, body)
 }

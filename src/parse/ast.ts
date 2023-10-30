@@ -67,6 +67,18 @@ export const NumericLiteral = (value: number, loc: Location): NumericLiteral => 
   loc
 })
 
+export type StringLiteral = {
+  _tag: "StringLiteral"
+  value: string,
+  loc: Location
+}
+
+export const StringLiteral = (value: string, loc: Location): StringLiteral => ({
+  _tag: "StringLiteral",
+  value,
+  loc
+})
+
 export type Property = {
   _tag: "Property",
   key: string,
@@ -114,6 +126,6 @@ export type FunDeclaration = {
 }
 export const FunDeclaration = (name: string, parameters: string[], body: Expr[], loc: Location): FunDeclaration => ({ _tag: "Fun", name, parameters, body, loc })
 
-export type Expr = Program | FunDeclaration | LetDeclaration | InfixExpr | Identifier | NumericLiteral | Property | ObjectLiteral | CallExpr | MemberExpr
+export type Expr = Program | FunDeclaration | LetDeclaration | InfixExpr | Identifier | NumericLiteral | StringLiteral | Property | ObjectLiteral | CallExpr | MemberExpr
 export type NodeType = Expr["_tag"]
 

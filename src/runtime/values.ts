@@ -19,6 +19,14 @@ export type NumericVal = Readonly<{
 export const NumericVal = (value: number): NumericVal => ({ _tag: "NumericVal", value })
 export const isNumericVal = is<NumericVal>("NumericVal")
 
+export type StringVal = Readonly<{
+  _tag: "StringVal"
+  value: string
+}>
+
+export const StringVal = (value: string): StringVal => ({ _tag: "StringVal", value })
+export const isStringVal = is<StringVal>("StringVal")
+
 export type BooleanVal = Readonly<{
   _tag: "BooleanVal",
   value: boolean
@@ -56,4 +64,4 @@ export const isFun = is<Fun>("Fun")
 
 
 
-export type RuntimeVal = UnitVal | NumericVal | BooleanVal | ObjectVal | NativeFn | Fun
+export type RuntimeVal = UnitVal | StringVal | NumericVal | BooleanVal | ObjectVal | NativeFn | Fun

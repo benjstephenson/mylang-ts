@@ -7,8 +7,7 @@ import { EofToken, NumberToken, StringToken, Token } from "./Tokens"
 const isAlpha = (str: string): boolean =>
   str.toUpperCase() !== str.toLowerCase()
 
-const isQuote = (str: string): boolean =>
-  str === Symbols.Quote
+const isQuote = (str: string): boolean => str === "\""
 
 const isNumber = (str: string): boolean => {
   const c = str.charCodeAt(0)
@@ -19,7 +18,7 @@ const isNumber = (str: string): boolean => {
 const isSkippable = (str: string): boolean =>
   [" ", "\t", "\n", "\r"].includes(str)
 
-const getTokeniser = (predicate: (s: string) => boolean) =>
+const getTokeniser = (predicate: (s: string) => boolean, consumeLast: boolean = false) =>
   (chrs: string[]): [string[], string] => {
     const _tokenise = (chrs: string[], token: string): [string[], string] => {
 
@@ -29,7 +28,7 @@ const getTokeniser = (predicate: (s: string) => boolean) =>
 
       return predicate(head)
         ? _tokenise(tail, token + head)
-        : [chrs, token]
+        : consumeLast ? [tail, token] : [chrs, token]
     }
 
     return _tokenise(chrs, "")
@@ -37,7 +36,7 @@ const getTokeniser = (predicate: (s: string) => boolean) =>
 
 const tokeniseAlpha = getTokeniser(isAlpha)
 const tokeniseNumber = getTokeniser(isNumber)
-const tokeniseString = getTokeniser(s => !isQuote(s))
+const tokeniseString = getTokeniser(s => !isQuote(s), true)
 
 export function tokenise(raw: string): Token[] {
 
@@ -61,7 +60,7 @@ export function tokenise(raw: string): Token[] {
         )
 
       } else if (isQuote(c)) {
-        const [remainingChrs, token] = tokeniseString(chrs)
+        const [remainingChrs, token] = tokeniseString(cs)
         return _tokenise(
           remainingChrs,
           push(StringToken(token, pos), tokens),

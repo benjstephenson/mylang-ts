@@ -10,6 +10,11 @@ export type QuoteToken = { _tag: "Quote", loc: Location }
 export const QuoteToken = (start: number): QuoteToken => ({ _tag: "Quote", loc: symbolLocation(start) })
 export const isQuoteToken = is<QuoteToken>("Quote")
 
+export type StringToken = { _tag: "String", value: string, loc: Location }
+export const StringToken = (value: string, start: number): StringToken => ({ _tag: "String", value, loc: Location(start, value.length) })
+export const isStringToken = is<StringToken>("String")
+
+
 export type NumberToken = { _tag: "Number", value: string, loc: Location }
 export const NumberToken = (value: string, loc: Location): NumberToken => ({ _tag: "Number", value, loc })
 
@@ -84,7 +89,7 @@ export const isEofToken = is<EofToken>(EofToken._tag)
 type SymbolToken = QuoteToken | EqualsToken | DotToken | OpenParenToken | CloseParenToken | OpenBraceToken |
   CloseBraceToken | OpenBracketToken | CloseBracketToken | CommaToken | ColonToken | SemiColonToken | InfixOperatorToken
 
-export type Token = FunToken | NumberToken | IdentifierToken | LetToken | SymbolToken | EofToken
+export type Token = FunToken | StringToken | NumberToken | IdentifierToken | LetToken | SymbolToken | EofToken
 
 export type TokenType = Token["_tag"]
 

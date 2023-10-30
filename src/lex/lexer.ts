@@ -1,11 +1,14 @@
-import { SymbolToToken, isKnownSymbol } from "../Symbols"
+import { SymbolToToken, Symbols, isKnownSymbol } from "../Symbols"
 import { isNonEmpty, push, tail } from "../array"
 import { Location } from "../types"
 import { keywordOrIdentifier } from "./ReservedKeywords"
-import { EofToken, NumberToken, Token } from "./Tokens"
+import { EofToken, NumberToken, StringToken, Token } from "./Tokens"
 
 const isAlpha = (str: string): boolean =>
   str.toUpperCase() !== str.toLowerCase()
+
+const isQuote = (str: string): boolean =>
+  str === Symbols.Quote
 
 const isNumber = (str: string): boolean => {
   const c = str.charCodeAt(0)
@@ -24,9 +27,9 @@ const getTokeniser = (predicate: (s: string) => boolean) =>
 
       const [head, ...tail] = chrs
 
-      return !predicate(head)
-        ? [chrs, token]
-        : _tokenise(tail, token + head)
+      return predicate(head)
+        ? _tokenise(tail, token + head)
+        : [chrs, token]
     }
 
     return _tokenise(chrs, "")
@@ -34,6 +37,7 @@ const getTokeniser = (predicate: (s: string) => boolean) =>
 
 const tokeniseAlpha = getTokeniser(isAlpha)
 const tokeniseNumber = getTokeniser(isNumber)
+const tokeniseString = getTokeniser(s => !isQuote(s))
 
 export function tokenise(raw: string): Token[] {
 
@@ -56,6 +60,14 @@ export function tokenise(raw: string): Token[] {
           pos + numberStr.length
         )
 
+      } else if (isQuote(c)) {
+        const [remainingChrs, token] = tokeniseString(chrs)
+        return _tokenise(
+          remainingChrs,
+          push(StringToken(token, pos), tokens),
+          pos + token.length
+        )
+
       } else if (isAlpha(c)) {
         const [remainingChrs, token] = tokeniseAlpha(chrs)
 
@@ -69,6 +81,7 @@ export function tokenise(raw: string): Token[] {
         return _tokenise(cs, tokens, ++pos)
 
       } else {
+        console.log(tokens)
         console.log(`Unrecognised character found [${c}] at character index ${pos}`)
         return tokens
       }

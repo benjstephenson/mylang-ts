@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "tsc -b --extendedDiagnostics .",
-    "start": "tsx src/main.ts"
+    "dev": "tsx src/main.ts"
   },
   "devDependencies": {
     "@types/node": "^20.8.7",

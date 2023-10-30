@@ -28,9 +28,10 @@ async function repl() {
 async function run(filename: string) {
   const input = fs.readFileSync(filename, "utf-8").split("\\n")
   const program = Parser.produceAST(input)
-  PrettyPrinter.logToConsole(program)
+  // PrettyPrinter.logToConsole(program)
 
   const [result, e] = evaluate(program, env)
+  PrettyPrinter.logToConsole(e)
 
 }
 

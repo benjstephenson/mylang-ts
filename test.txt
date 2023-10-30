@@ -1,3 +1,4 @@
+let a = "hello"
 
 fun makeAdder(offset) {
   fun add(x y) {
@@ -8,4 +9,11 @@ fun makeAdder(offset) {
 }
 
 let adder = makeAdder(1)
-print(adder(10 5))
+let obj = {
+  hello adder
+  boo True
+  bar {
+    c 1
+  }
+  : False
+}

@@ -2,7 +2,7 @@ import { CloseBraceToken, CloseBracketToken, CloseParenToken, ColonToken, DotTok
 import { ElementOf, PropertyOf } from "./types"
 
 export const Symbols = {
-  // Quote: "\"" as const,
+  Quote: "\"" as const,
   OpenParen: "(" as const,
   CloseParen: ")" as const,
   OpenBrace: "{" as const,
@@ -26,7 +26,7 @@ export const Symbols = {
 } as const
 
 export const SymbolToToken: Record<KnownSymbol, (start: number) => Token> = {
-  // [Symbols.Quote]: QuoteToken,
+  [Symbols.Quote]: QuoteToken,
   [Symbols.OpenParen]: OpenParenToken,
   [Symbols.CloseParen]: CloseParenToken,
   [Symbols.OpenBrace]: OpenBraceToken,

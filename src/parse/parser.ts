@@ -277,7 +277,6 @@ export function produceAST(raw: string[]): AST.Program {
 
   const tokens = raw.flatMap(tokenise)
 
-  console.log(tokens)
   const [start, end, body] = _produceAST(tokens, [], 0, 0)
   return AST.Program(start, end, body)
 }

@@ -48,6 +48,15 @@ export function tokenise(raw: string): Token[] {
     const [c, ...cs] = chrs
 
     if (isKnownSymbol(c)) {
+
+      // is a comment
+      if (c === Symbols.Slash && (cs !== undefined && cs[0] === Symbols.Slash)) {
+        const idx = chrs.findIndex(c => c === "\n")
+        return idx === -1
+          ? tokens
+          : _tokenise(chrs.slice(idx), tokens, pos + (idx + 2))
+      }
+
       return _tokenise(tail(chrs), push(SymbolToToken[c](pos), tokens), ++pos)
 
     } else {

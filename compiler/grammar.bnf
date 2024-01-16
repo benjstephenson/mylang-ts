@@ -1,0 +1,9 @@
+Program ::= Expr
+
+Identifier ::= #"[a-zA-Z][a-zA-Z0-9-]*[!?]?"
+
+BooleanLiteral ::= "true" | "false"
+NumericLiteral ::= #"\D"
+StringLiteral ::= #"\".*\""
+
+Comment ::= '//' #"^\n"

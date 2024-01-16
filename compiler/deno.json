@@ -1,0 +1,13 @@
+{
+    "lint": {
+        "include": ["src/"]
+    },
+    "fmt": {
+        "useTabs": true,
+        "lineWidth": 120,
+        "indentWidth": 4,
+        "semiColons": false,
+        "singleQuote": false,
+        "include": ["src/"]
+    }
+}
